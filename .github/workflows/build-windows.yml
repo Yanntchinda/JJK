@@ -4,9 +4,15 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Publier aussi l’installeur .exe en lien direct dans Releases
+        required: true
+        default: true
+        type: boolean
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -38,6 +44,21 @@ jobs:
           path: dist/*.exe
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publier un téléchargement direct de l’installeur
+        if: github.event_name == 'workflow_dispatch' && inputs.publish_release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: windows-installer-${{ github.run_id }}
+          target_commitish: ${{ github.sha }}
+          name: Bookmap Trading — Installeur Windows ${{ github.run_number }}
+          body: Installeur Windows 64 bits du Journal de trading Bookmap Trading.
+          draft: false
+          prerelease: true
+          files: dist/*.exe
+          fail_on_unmatched_files: true
 
       - name: Publier les diagnostics en cas d’échec
         if: failure()

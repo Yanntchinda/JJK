@@ -27,7 +27,7 @@ L’application permet de suivre les trades et comptes, consulter les statistiqu
 3. Télécharger l’artefact `bookmap-trading-journal-windows-x64`.
 4. L’installeur se trouve dans l’archive téléchargée (`Bookmap Trading - Journal Setup ... .exe`).
 
-La compilation peut aussi être lancée manuellement depuis **Actions → Build Windows EXE → Run workflow**.
+La compilation peut aussi être lancée manuellement depuis **Actions → Build Windows EXE → Run workflow**. Cette exécution manuelle publie aussi l’installeur `.exe` comme fichier direct dans une pré-version de **Releases** (en plus de l’artefact ZIP).
 
 ## Construire en local
 
