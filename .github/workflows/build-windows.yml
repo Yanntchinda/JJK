@@ -1,0 +1,37 @@
+name: Build Windows EXE
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Windows installer
+    runs-on: windows-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Générer l’installeur Windows
+        run: npm run dist
+
+      - name: Publier l’installeur comme artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bookmap-trading-journal-windows-x64
+          path: dist/*.exe
+          if-no-files-found: error
+          retention-days: 30

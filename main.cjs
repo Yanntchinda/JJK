@@ -1,0 +1,34 @@
+'use strict';
+
+const { app, BrowserWindow } = require('electron');
+const path = require('node:path');
+
+function createWindow() {
+  const window = new BrowserWindow({
+    width: 1440,
+    height: 960,
+    minWidth: 360,
+    minHeight: 640,
+    title: 'Bookmap Trading — Journal de Trading',
+    backgroundColor: '#060b17',
+    icon: path.join(__dirname, 'assets', 'bookmap-trading-logo.png'),
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+
+  window.loadFile(path.join(__dirname, 'journal-de-trading.html'));
+}
+
+app.whenReady().then(() => {
+  createWindow();
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});

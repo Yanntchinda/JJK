@@ -1,0 +1,51 @@
+{
+  "name": "bookmap-trading-journal",
+  "version": "1.0.0",
+  "description": "Journal de trading Bookmap Trading — application Windows autonome",
+  "author": "Bookmap Trading",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "build:icon": "node scripts/create-icon.cjs",
+    "dist": "npm run build:icon && electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^45.1.0",
+    "electron-builder": "^26.0.12",
+    "png-to-ico": "^2.1.8"
+  },
+  "build": {
+    "appId": "com.bookmaptrading.journal",
+    "productName": "Bookmap Trading - Journal",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.cjs",
+      "journal-de-trading.html",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "icon": "assets/bookmap-trading.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Bookmap Trading - Journal"
+    }
+  }
+}
