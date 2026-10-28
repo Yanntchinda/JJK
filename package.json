@@ -9,7 +9,7 @@
   "scripts": {
     "start": "electron .",
     "build:icon": "node scripts/create-icon.cjs",
-    "dist": "npm run build:icon && electron-builder --win nsis"
+    "dist": "npm run build:icon && electron-builder --win nsis --publish never"
   },
   "devDependencies": {
     "electron": "^45.1.0",
