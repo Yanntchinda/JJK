@@ -26,7 +26,10 @@ jobs:
         run: npm ci
 
       - name: Générer l’installeur Windows
-        run: npm run dist
+        shell: pwsh
+        run: |
+          npm run dist -- --debug 2>&1 | Tee-Object -FilePath build.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Publier l’installeur comme artefact
         uses: actions/upload-artifact@v4
@@ -35,3 +38,12 @@ jobs:
           path: dist/*.exe
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publier les diagnostics en cas d’échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-diagnostics
+          path: build.log
+          if-no-files-found: ignore
+          retention-days: 7
