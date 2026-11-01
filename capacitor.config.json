@@ -1,0 +1,8 @@
+{
+  "appId": "com.bookmaptrading.journal",
+  "appName": "Bookmap Trading",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#060b17"
+  }
+}

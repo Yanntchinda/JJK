@@ -1,0 +1,85 @@
+name: Build Android APK
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Publier aussi le fichier APK en lien direct dans Releases
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Installer les dépendances JavaScript
+        run: npm ci
+
+      - name: Préparer l’application Capacitor
+        run: npm run android:sync
+
+      - name: Générer les icônes Android avec le logo du projet
+        run: npx capacitor-assets generate --android --assetPath assets --iconBackgroundColor '#060b17' --splashBackgroundColor '#060b17'
+
+      - name: Compiler l’APK installable (debug signé)
+        shell: bash
+        run: |
+          chmod +x android/gradlew
+          cd android
+          ./gradlew assembleDebug --no-daemon 2>&1 | tee ../build-android.log
+          test ${PIPESTATUS[0]} -eq 0
+
+      - name: Publier l’APK comme artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bookmap-trading-journal-android-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publier un téléchargement direct de l’APK
+        if: (github.event_name == 'workflow_dispatch' && inputs.publish_release) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-apk]'))
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: android-apk-${{ github.run_id }}
+          target_commitish: ${{ github.sha }}
+          name: Bookmap Trading — APK Android ${{ github.run_number }}
+          body: APK Android debug signé, installable directement sur Android (installation hors Play Store).
+          draft: false
+          prerelease: true
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+          fail_on_unmatched_files: true
+
+      - name: Publier les diagnostics Gradle en cas d’échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build-diagnostics
+          path: build-android.log
+          if-no-files-found: ignore
+          retention-days: 7

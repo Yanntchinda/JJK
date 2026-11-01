@@ -1,44 +1,46 @@
 # Bookmap Trading — Journal de trading
 
-Application de journal de trading en français, transformée en application Windows autonome avec le logo fourni dans le dépôt.
+Journal de trading en français, avec applications Windows (Electron) et Android (Capacitor). Le logo du dépôt est intégré à l’interface, à l’icône Android et à l’installeur Windows.
 
 ## Contenu
 
 ```text
 JJK/
-├── .github/workflows/build-windows.yml  # compilation automatique sur GitHub Actions
-├── assets/
-│   └── bookmap-trading-logo.png         # logo utilisé dans l’application et l’installeur
-├── index.html                           # point d’entrée navigateur (redirige vers l’application)
-├── journal-de-trading.html              # tableau de bord, calendrier, journal et paramètres
-├── main.cjs                             # fenêtre de bureau Electron
-├── package.json                         # scripts, dépendances et configuration de l’installeur
-└── scripts/create-icon.cjs              # génération de l’icône Windows (.ico) depuis le logo
+├── .github/workflows/
+│   ├── build-windows.yml             # installeur Windows EXE
+│   └── build-android.yml             # APK Android
+├── android/                          # projet natif Android et wrapper Gradle
+├── assets/bookmap-trading-logo.png   # logo de l’application
+├── capacitor.config.json             # configuration Capacitor
+├── index.html                        # entrée navigateur
+├── journal-de-trading.html           # tableau de bord, calendrier et journal
+├── main.cjs                           # démarrage de l’application Electron
+├── package.json                      # dépendances et scripts de build
+└── scripts/                           # préparation des icônes et fichiers web
 ```
 
-L’application permet de suivre les trades et comptes, consulter les statistiques et graphiques, importer/exporter des CSV et sauvegarder/restaurer les données en JSON. Les données sont enregistrées localement dans le profil de l’application/navigateur : exportez régulièrement une sauvegarde JSON.
+Fonctions : suivi des comptes et trades, statistiques et graphiques, calendrier, import/export CSV et sauvegardes JSON. Les données sont conservées localement sur l’appareil ; faites régulièrement une sauvegarde JSON.
 
-## Récupérer le fichier `.exe` depuis GitHub
+## Télécharger l’APK
 
-À chaque push ou pull request, GitHub Actions construit l’installeur Windows 64 bits. Pour le télécharger :
+Le workflow **Build Android APK** compile automatiquement un APK lors d’un push ou d’une pull request. L’artefact `bookmap-trading-journal-android-apk` est téléchargeable depuis la page de l’exécution **Actions** pendant 30 jours.
 
-1. Ouvrir l’onglet **Actions** du dépôt et sélectionner **Build Windows EXE**.
-2. Ouvrir la dernière exécution terminée avec succès.
-3. Télécharger l’artefact `bookmap-trading-journal-windows-x64`.
-4. L’installeur se trouve dans l’archive téléchargée (`Bookmap Trading - Journal Setup ... .exe`).
+Pour publier aussi un lien direct vers le fichier `.apk` dans une pré-version GitHub, lancer **Actions → Build Android APK → Run workflow** et laisser `publish_release` activé. L’APK est signé avec la clé de débogage Android : il peut être installé directement après autorisation des installations provenant de cette source, mais cette clé n’est pas destinée à une publication sur Google Play.
 
-La compilation peut aussi être lancée manuellement depuis **Actions → Build Windows EXE → Run workflow**. Cette exécution manuelle publie aussi l’installeur `.exe` comme fichier direct dans une pré-version de **Releases** (en plus de l’artefact ZIP).
+## Construire l’APK en local
 
-## Construire en local
-
-Prérequis : Node.js 22 ou plus récent et npm.
+Prérequis : Node.js 22+, Java 21 et Android SDK.
 
 ```bash
 npm ci
-npm start       # lancer l’application de bureau
-npm run dist    # générer l’installeur Windows dans dist/
+npm run android:sync
+npx capacitor-assets generate --android --assetPath assets --iconBackgroundColor '#060b17' --splashBackgroundColor '#060b17'
+cd android
+./gradlew assembleDebug
 ```
 
-`npm run dist` génère l’icône `.ico` à partir du PNG du logo, puis empaquette l’application avec Electron Builder. Le fichier `.ico` et les fichiers générés dans `dist/` ne sont pas suivis par Git.
+L’APK sera créé dans `android/app/build/outputs/apk/debug/app-debug.apk`.
 
-> Le workflow Windows est la voie recommandée pour produire l’installeur `.exe` ; il s’exécute sur une machine Windows fournie par GitHub Actions.
+## Windows
+
+L’installeur Windows est construit avec Electron Builder et publié comme artefact par **Build Windows EXE**. Voir l’onglet **Actions** pour télécharger l’archive ZIP ou lancer une pré-version avec lien direct vers le `.exe`.

@@ -9,9 +9,14 @@
   "scripts": {
     "start": "electron .",
     "build:icon": "node scripts/create-icon.cjs",
-    "dist": "npm run build:icon && electron-builder --win nsis --publish never"
+    "dist": "npm run build:icon && electron-builder --win nsis --publish never",
+    "cap:prepare": "node scripts/prepare-capacitor.cjs",
+    "android:sync": "npm run cap:prepare && cap sync android"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.6.0",
     "electron": "^45.1.0",
     "electron-builder": "^26.0.12",
     "png-to-ico": "^2.1.8"
@@ -47,5 +52,8 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Bookmap Trading - Journal"
     }
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.6.0"
   }
 }
